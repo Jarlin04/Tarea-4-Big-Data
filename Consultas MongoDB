@@ -1,0 +1,108 @@
+/*Estudiantes con puntaje menor a 90*/
+{ "exam_score": { "$gt": 90 } }
+
+/*Estudiantes con asistencia menor al 90%*/
+{ "attendance_percentage": { "$lt": 70 } }
+
+/*Estudiantes con 8 horas de sueño excatamente*/
+{ "sleep_hours": { "$eq": 8 } }
+
+
+/*Estudiantes con bajo promedio*/
+db.habitos.find({ exam_score: { $lt: 60 } })
+
+
+/*Promedio de Hora de estudio y calificación*/
+db.habitos.aggregate([
+  {
+    $group: {
+      _id: null,
+      avg_study_hours: { $avg: "$study_hours_per_day" },
+      avg_exam_score: { $avg: "$exam_score" }
+    }
+  }
+])
+
+
+/*Calificaciones pormedio por genero*/
+db.habitos.aggregate([
+  {
+    $group: {
+      _id: "$gender",
+      promedio_calificacion: { $avg: "$exam_score" }
+    }
+  }
+])
+
+/*JSON*/
+[
+  {
+    "$group": {
+      "_id": "$gender",
+      "avg_exam_score": { "$avg": "$exam_score" }
+    }
+  }
+]
+
+
+
+/*Impacto del trabajo de medio tiempo en el desempeño*/
+db.habitos.aggregate([
+  {
+    $group: {
+      _id: "$part_time_job",
+      promedio_calificacion: { $avg: "$exam_score" },
+      cantidad_estudiantes: { $sum: 1 }
+    }
+  }
+])
+
+
+
+/*Relación entre sueño y calificaciones*/
+db.habitos.aggregate([
+  {
+    $group: {
+      _id: "$sleep_hours",
+      promedio_calificacion: { $avg: "$exam_score" },
+      total: { $sum: 1 }
+    }
+  },
+  { $sort: { _id: 1 } }
+])
+
+
+
+/*Estudiantes con buena y dieta y alto puntaje*/
+db.habitos.find({
+  diet_quality: "Good",
+  exam_score: { $gt: 85 }
+})
+
+/*JSON*/
+{
+  "diet_quality": { "$in": ["Good"] },
+  "exam_score": { "$gt": 80 }
+}
+
+
+
+/*Estudiantes con alto uso de redes sociales y bajo rendimiento*/
+db.habitos.find({
+  social_media_hours: { $gt: 3 },
+  exam_score: { $lt: 60 }
+})
+
+
+
+/*Agrupación por calidad de Internet*/
+db.habitos.aggregate([
+  {
+    $group: {
+      _id: "$internet_quality",
+      promedio_score: { $avg: "$exam_score" }
+    }
+  }
+])
+
+/*
